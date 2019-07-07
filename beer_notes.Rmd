@@ -1,0 +1,195 @@
+---
+title: "Analysis of beer data frame"
+output: html_notebook
+---
+
+**Beer** a dataset with the brand, brewer, alcohol percentage, calories and grams of carbohydrates for 172 beers.
+
+Questions - do brewers specialise in high alcohol beers? What are the higest in calorie / carbohydrate
+
+```{r}
+# Load the libraries that might be needed---------------------------------------
+
+library(CodeClanData)
+library(tidyverse)
+library(styler)
+library(psych)
+```
+
+```{r}
+# Look at the structure of the beer data frame----------------------------------
+
+str(beer)
+```
+
+The field `calories` is a `chr` type but looks to contain numbers - will change to numeric.
+```{r}
+# Changing field to numeric ----------------------------------------------------
+
+beer$calories <- as.numeric(beer$calories)
+```
+
+```{r}
+# Look at the summary to see the range of the numeric fields--------------------
+
+summary(beer)
+```
+
+The mean is a little higher that the median for percent of alcohol and calories 
+but for carbohydrates is almost eactly the same.
+
+```{r}
+quantile(beer$percent, seq(from = 0, to = 1, by = 0.20))
+```
+```{r}
+quantile(beer$carbohydrates, seq(from = 0, to = 1, by = 0.20))
+```
+
+```{r}
+quantile(beer$calories, seq(from = 0, to = 1, by = 0.20))
+```
+
+
+```{r}
+# Use a histogram plot to see the shape of the numeric distributions------------
+
+hist(beer$percent,
+  main = "Histogram of beer alcohol percentage",
+  xlab = "Pct (alcohol)"
+)
+hist(beer$carbohydrates,
+  main = "Histogram of beer carbohydrates",
+  xlab = "Carbohydrates (grams)"
+)
+hist(beer$calories,
+  main = "Histogram of beer calories",
+  xlab = "Calories"
+)
+```
+
+Almost 60% percent of the beers in the dataset are in the 5% alcohol range.
+
+Almost 47% percent of the beers in the dataset are in 11 - 15 gram of 
+carbohydrates range. The histogram is slightly right skewed as there are small 
+number of beers in the dataset that have very high carbohydrate values of almost
+double that.
+
+The calories histogram is also right skewed with the majority of values falling
+in the range of just over 100 to 200 calories. There are a small number of beers
+with values over 300.
+
+
+```{r}
+# Looking at the entries at the upper and lower ends of the histogram
+# for percentage alcohol--------------------------------------------------------
+
+beer %>%
+  filter(percent > 10 | percent < 2)
+```
+```{r}
+# Looking at the entries at the upper and lower end of the histogram for
+# carbohydrates in beer---------------------------------------------------------
+
+beer %>%
+  filter(carbohydrates > 25 | carbohydrates < 2)
+```
+```{r}
+# Looking at the entries at the upper end of the histogram for calories---------
+
+beer %>%
+  filter(calories > 250)
+```
+Flying Dog Brewery appear in the upper end of both calories and alcohol
+percentage while Sierra Nevada appear at the top for calories.
+
+
+What relationship do the numeric variables have?
+```{r}
+# Using scatterplots to visualise the relationships among numeric fields in the
+# dataset. The intersection of each row and column holds the scatterplot of the
+# variables indicated by the row and column pair ------------------------------
+
+pairs(beer[c("calories", "percent", "carbohydrates")])
+```
+
+
+```{r}
+# Producing a correlation matrix to try and see relationships more clearly.
+# The diagonal now contains histograms depicting the distribution of values.
+# The oval-shaped object in each scatterplot is a correlation ellipse. It
+# provides a visualisation of correlation strength. The more the elipse is
+# stretched, the stronger the correlation --------------------------------------
+
+pairs.panels(beer[c("calories", "percent", "carbohydrates")])
+```
+In the above plot, the strongest correlation appears to be between percentage of 
+alcohol and number of calories.
+
+
+
+```{r}
+# A faceted scatter plot to show all the brewers in the dataset and the
+# alcohol percentage and calories variables ------------------------------------
+
+ggplot(data = beer) +
+  geom_point(mapping = aes(x = calories, y = percent)) +
+  facet_wrap(~brewer)
+```
+Flying Dog Brewery seem to be focusing on a spread of products going all the 
+way up to higher alcohol / higher calorie beers.
+
+Also in the plot you can see a number of brewers that are focussed on a specific 
+product (only one point showing on the plot in those cases).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

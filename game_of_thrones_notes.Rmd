@@ -1,0 +1,107 @@
+---
+title: "Analysis of Game of Thrones list"
+output: html_notebook
+---
+
+*Game of Thrones* Data on the book "A Game of Thrones", including names and 
+genders for all of the characters.
+
+Questions - 
+Can we look at the balance of genders?
+Are there any duplicates in the list of characters?
+
+```{r}
+# Load the libraries that might be needed---------------------------------------
+
+library(CodeClanData)
+library(tidyverse)
+library(styler)
+library(tidyr)
+library(tidytext)
+```
+
+
+```{r}
+# Looking at a summary of the data first ---------------------------------------
+
+summary(game_of_thrones)
+```
+
+
+```{r}
+# Just selecting the character part of the list --------------------------------
+
+game_of_thrones[["characters"]]
+```
+
+```{r}
+# Turn the characters section of the list into a data frame --------------------
+
+got_characters <- reduce(game_of_thrones[["characters"]], bind_rows)
+```
+
+```{r}
+# Plot the numebr of male and female characters --------------------------------
+
+ggplot(data = got_characters) +
+  stat_count(mapping = aes(x = gender))
+```
+In the data provided, it would appear there's a much greater number of male 
+characters than female characters.
+
+
+```{r}
+# Looking for characters who appear in the list more than once -----------------
+
+table(got_characters$name)
+```
+
+
+```{r}
+# Filtering character names that appear in the list more than once -------------
+
+got_duplicates <- got_characters %>%
+  group_by(name) %>%
+  filter((n() > 1))
+got_duplicates
+```
+
+```{r}
+# Using the above filtered data to create a plot by character name for those
+# that appear in the list more than once ---------------------------------------
+
+ggplot(data = got_duplicates) +
+  stat_count(mapping = aes(x = name))
+```
+Is this data correct or are there duplicates?
+
+```{r}
+extract(got_characters, name, c("first_name", "last_name"), "([^ ]+) (.*)")
+```
+
+```{r}
+# Trying to split out first_name and last_name ---------------------------------
+
+got_characters_split <- extract(
+  got_characters, name, c("first_name", "last_name"), "([^ ]+) (.*)"
+)
+```
+
+```{r}
+# Removing first name
+
+got_characters_split$first_name <- NULL
+```
+
+```{r}
+got_family_names <- got_characters_split %>%
+  filter(!is.na(last_name) & last_name != "I") %>%
+  group_by(last_name) %>%
+  count(last_name, sort = TRUE)
+got_family_names
+```
+
+I assume these must be important families in the Game of Thrones story as they
+seem to occur the most often.
+
+

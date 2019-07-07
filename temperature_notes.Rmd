@@ -1,0 +1,144 @@
+---
+title: "Analysis of temperature matrix"
+output: html_notebook
+---
+
+*Temp* A matrix which contains the maximum temperature for each month in Scotland over 106 years (1910 to 2015). Each row corresponds to a year and each column to a month (January to December).
+
+```{r}
+# Looking at the data ----------------------------------------------------------
+
+head(temp)
+```
+
+```{r}
+# Creating a summary of the data -----------------------------------------------
+summary(temp)
+```
+
+
+
+```{r}
+# Creating the columns to add to the matrix-------------------------------------
+
+# Calulate the values first before joining to the matrix------------------------
+
+total_of_max_temps <- rowSums(temp)
+avg_of_max_temps <- rowMeans(temp)
+year_of_measurement <- seq(from = 1910, to = 2015, by = 1)
+```
+
+```{r}
+# Adding year to matrix----------------------------------------------------------
+
+max_temps_scotland <- cbind(year_of_measurement, temp)
+```
+
+```{r}
+# Adding totals-----------------------------------------------------------------
+
+max_temps_scotland <- cbind(total_of_max_temps, max_temps_scotland)
+```
+
+```{r}
+# Adding averages---------------------------------------------------------------
+
+max_temps_scotland <- cbind(avg_of_max_temps, max_temps_scotland)
+```
+
+
+
+```{r}
+# Plot of max temperatures in Scotland------------------------------------------
+
+ggplot(
+  data = as.data.frame(
+    max_temps_scotland
+  ),
+  mapping = aes(
+    x = year_of_measurement,
+    y = avg_of_max_temps
+  )
+) +
+  geom_point() +
+  geom_smooth()
+```
+
+Interestingly, this shows there was a peak at 1949 of 11.34 and then another 
+peak in 1959 of 11.45. Average max temperatures didn't exceed the 1959 figure 
+until 2003.
+
+The geom_smooth uses a smooth line fitted to the data to show the trend - which 
+seems to be steadily increasing since the mid 1970s.
+
+It might be useful to try and show the monthly temparature changes each year 
+using an animation with circles to represent temperature and and have the 
+circles coloured to represent each month. The animation could play across the 
+years so you could see the spread of temperatures moving in each year and also 
+how each month was affected.
+
+
+```{r}
+# See if we can select summer data from just June, July and August for each year
+
+head(temp[, 6:8])
+```
+
+```{r}
+# Run this first to select the data for the matrix------------------------------
+
+summer_temps_scotland <- temp[, 6:8]
+```
+
+```{r}
+# Run this next so we are only calculating on the temperatures-----------------
+
+total_of_max_summer_temps <- rowSums(summer_temps_scotland)
+avg_of_max_summer_temps <- rowMeans(summer_temps_scotland)
+```
+
+```{r}
+# Now we can add the years so they won't be in the calculation -----------------
+
+summer_temps_scotland <- cbind(year_of_measurement, summer_temps_scotland)
+```
+
+```{r}
+# Add the totals vector --------------------------------------------------------
+
+summer_temps_scotland <- cbind(total_of_max_summer_temps, summer_temps_scotland)
+```
+
+```{r}
+# Add the means vector ---------------------------------------------------------
+
+summer_temps_scotland <- cbind(avg_of_max_summer_temps, summer_temps_scotland)
+```
+
+
+```{r}
+# Plot of summer months June, July and August ----------------------------------
+
+ggplot(
+  data = as.data.frame(
+    summer_temps_scotland
+  ),
+  mapping = aes(
+    x = year_of_measurement,
+    y = avg_of_max_summer_temps
+  )
+) +
+  geom_point() +
+  geom_smooth()
+```
+
+The trend looks a little flatter for summer months when comparing to the plot 
+for the whole year. The plot also shows several outliers with high temperatures 
+right from the 1930s onwards. These high temperatures appear to be larger 
+outliers than the spread of the lower average maximum summer temperatures at the 
+lower part of the plot.
+
+1976 seems to be the year that everyone remembers as the long hot summer. 
+However, for Scotland, 1995 was on overage slightly hotter for the summer 
+months of June, July and August.
+
